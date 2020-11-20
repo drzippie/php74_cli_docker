@@ -3,7 +3,7 @@ RUN apk add --no-cache bash $PHPIZE_DEPS openssl-dev
 RUN yes '' | pecl install swoole
 RUN docker-php-ext-enable swoole
 RUN docker-php-source delete  && pecl clear-cache  && 	rm -rf /tmp/pear ~/.pearrc;
-RUN docker-php-ext-install bcmath pcntl mysqli pdo_mysql xdebug 
+RUN docker-php-ext-install bcmath pcntl mysqli pdo_mysql 
 RUN set -ex && apk --no-cache add libxml2-dev
 RUN docker-php-ext-install soap
 RUN apk add --no-cache icu-dev && docker-php-ext-configure intl   && docker-php-ext-install intl
@@ -19,6 +19,8 @@ RUN apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev lib
 RUN yes '' | pecl install inotify
 RUN docker-php-ext-enable inotify
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+RUN pecl install xdebug-2.8.1 \
+	&& docker-php-ext-enable xdebug
 COPY dockerfiles/entrypoint.sh entrypoint
 RUN addgroup -g 1000 -S app && \
     adduser -u 1000 -S app -G app
@@ -31,6 +33,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+
 USER app
 
 ENTRYPOINT ["/entrypoint.sh"]
